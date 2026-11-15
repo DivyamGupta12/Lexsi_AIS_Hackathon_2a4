@@ -9,7 +9,7 @@
 ## Hackathon submission
 
 - **Track:** **[T2a] Track 2a**
-- **Problem statement #4:** **Multilingual and code-mixed safety** — test whether safety holds across languages and mixed-language prompts, then close the gaps found.
+- **Problem statement #4:** **Multilingual and code-mixed safety** - test whether safety holds across languages and mixed-language prompts, then close the gaps found.
 
 | Headline before → after | Base model + method |
 |---|---|
@@ -318,8 +318,8 @@ The primary Tiny Aya Global pipeline used bf16 inference on an NVIDIA L4. Experi
 ## Public artifacts
 
 - **GitHub code and executed notebooks:** [DivyamGupta12/Lexsi_AIS_Hackathon_2a4](https://github.com/DivyamGupta12/Lexsi_AIS_Hackathon_2a4)
-- **HF dataset collection:** `<HF_DATASET_COLLECTION_URL>` — curated five-form data, evaluation logs, traces, summaries, and figures.
-- **HF model collection:** `<HF_MODEL_COLLECTION_URL>` — latent-harm probe and inference-time steering artifacts; no fine-tuned checkpoint is claimed.
+- **HF dataset collection:** [vehement-phoenix/multilingual-safety-data](https://hf.co/collections/vehement-phoenix/multilingual-safety-data) - curated five-form data, evaluation logs, traces, summaries, and figures.
+- **HF model collection:** [vehement-phoenix/multilingual-safety-aya](https://hf.co/collections/vehement-phoenix/multilingual-safety-aya) - latent-harm probe and inference-time steering artifacts; no fine-tuned checkpoint is claimed.
 
 
 ## Repository layout and reproduction
