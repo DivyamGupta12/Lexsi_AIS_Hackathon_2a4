@@ -1,0 +1,82 @@
+{
+ "key": "L_REF=17|v=7c97903937|T=-4.068,22.329|[('always+add', 'add:0.5'), ('always+clamp', 'clamp:0.75'), ('gate_en+add', 'add:1'), ('gate_en+clamp', 'clamp:1'), ('gate_multi_fpr+clamp', 'clamp:1'), ('probe+add', 'add:2'), ('probe+clamp', 'clamp:1')]|tau=[('gate_en', -1.8426988124847412), ('gate_multi_fpr', 3.53594970703125), ('probe', 0.8032626509666443)]|C=0.01|n=60",
+ "acc": {
+  "base": {
+   "eng_Latn": 0.85,
+   "hin_Deva": 0.7,
+   "hin_Latn": 0.5333333333333333
+  },
+  "always+add": {
+   "eng_Latn": 0.8166666666666667,
+   "hin_Deva": 0.7,
+   "hin_Latn": 0.5
+  },
+  "always+clamp": {
+   "eng_Latn": 0.8166666666666667,
+   "hin_Deva": 0.7,
+   "hin_Latn": 0.5333333333333333
+  },
+  "gate_en+add": {
+   "eng_Latn": 0.4666666666666667,
+   "hin_Deva": 0.18333333333333332,
+   "hin_Latn": 0.03333333333333333
+  },
+  "gate_en+clamp": {
+   "eng_Latn": 0.6833333333333333,
+   "hin_Deva": 0.45,
+   "hin_Latn": 0.23333333333333334
+  },
+  "gate_multi_fpr+clamp": {
+   "eng_Latn": 0.85,
+   "hin_Deva": 0.7,
+   "hin_Latn": 0.5333333333333333
+  },
+  "probe+add": {
+   "eng_Latn": 0.85,
+   "hin_Deva": 0.7,
+   "hin_Latn": 0.5333333333333333
+  },
+  "probe+clamp": {
+   "eng_Latn": 0.85,
+   "hin_Deva": 0.7,
+   "hin_Latn": 0.5333333333333333
+  }
+ },
+ "fire": {
+  "always+add": {
+   "eng_Latn": 1.0,
+   "hin_Deva": 1.0,
+   "hin_Latn": 1.0
+  },
+  "always+clamp": {
+   "eng_Latn": 1.0,
+   "hin_Deva": 1.0,
+   "hin_Latn": 1.0
+  },
+  "gate_en+add": {
+   "eng_Latn": 1.0,
+   "hin_Deva": 1.0,
+   "hin_Latn": 1.0
+  },
+  "gate_en+clamp": {
+   "eng_Latn": 1.0,
+   "hin_Deva": 1.0,
+   "hin_Latn": 1.0
+  },
+  "gate_multi_fpr+clamp": {
+   "eng_Latn": 0.0,
+   "hin_Deva": 0.0,
+   "hin_Latn": 0.0
+  },
+  "probe+add": {
+   "eng_Latn": 0.0,
+   "hin_Deva": 0.0,
+   "hin_Latn": 0.0
+  },
+  "probe+clamp": {
+   "eng_Latn": 0.0,
+   "hin_Deva": 0.0,
+   "hin_Latn": 0.0
+  }
+ }
+}

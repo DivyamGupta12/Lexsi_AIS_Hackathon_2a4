@@ -1,0 +1,82 @@
+{
+ "key": "L_REF=15|v=340f301024|T=0.351,17.506|[('always+add', 'add:0.5'), ('always+clamp', 'clamp:0.75'), ('gate_en+add', 'add:1.5'), ('gate_en+clamp', 'clamp:2'), ('gate_multi_fpr+clamp', 'clamp:2'), ('probe+add', 'add:1.5'), ('probe+clamp', 'clamp:2')]|tau=[('gate_en', 0.5754765272140503), ('gate_multi_fpr', 5.27078104019165), ('probe', 0.8224048018455505)]|C=0.01|n=60",
+ "acc": {
+  "base": {
+   "eng_Latn": 0.7833333333333333,
+   "hin_Deva": 0.6166666666666667,
+   "hin_Latn": 0.5666666666666667
+  },
+  "always+add": {
+   "eng_Latn": 0.7,
+   "hin_Deva": 0.5333333333333333,
+   "hin_Latn": 0.4666666666666667
+  },
+  "always+clamp": {
+   "eng_Latn": 0.5833333333333334,
+   "hin_Deva": 0.5166666666666667,
+   "hin_Latn": 0.3
+  },
+  "gate_en+add": {
+   "eng_Latn": 0.4166666666666667,
+   "hin_Deva": 0.06666666666666667,
+   "hin_Latn": 0.31666666666666665
+  },
+  "gate_en+clamp": {
+   "eng_Latn": 0.36666666666666664,
+   "hin_Deva": 0.06666666666666667,
+   "hin_Latn": 0.31666666666666665
+  },
+  "gate_multi_fpr+clamp": {
+   "eng_Latn": 0.7833333333333333,
+   "hin_Deva": 0.6166666666666667,
+   "hin_Latn": 0.5666666666666667
+  },
+  "probe+add": {
+   "eng_Latn": 0.7833333333333333,
+   "hin_Deva": 0.6166666666666667,
+   "hin_Latn": 0.5666666666666667
+  },
+  "probe+clamp": {
+   "eng_Latn": 0.7833333333333333,
+   "hin_Deva": 0.6166666666666667,
+   "hin_Latn": 0.5666666666666667
+  }
+ },
+ "fire": {
+  "always+add": {
+   "eng_Latn": 1.0,
+   "hin_Deva": 1.0,
+   "hin_Latn": 1.0
+  },
+  "always+clamp": {
+   "eng_Latn": 1.0,
+   "hin_Deva": 1.0,
+   "hin_Latn": 1.0
+  },
+  "gate_en+add": {
+   "eng_Latn": 0.5166666666666667,
+   "hin_Deva": 0.8333333333333334,
+   "hin_Latn": 0.5
+  },
+  "gate_en+clamp": {
+   "eng_Latn": 0.5166666666666667,
+   "hin_Deva": 0.8333333333333334,
+   "hin_Latn": 0.5
+  },
+  "gate_multi_fpr+clamp": {
+   "eng_Latn": 0.0,
+   "hin_Deva": 0.0,
+   "hin_Latn": 0.0
+  },
+  "probe+add": {
+   "eng_Latn": 0.0,
+   "hin_Deva": 0.0,
+   "hin_Latn": 0.0
+  },
+  "probe+clamp": {
+   "eng_Latn": 0.0,
+   "hin_Deva": 0.0,
+   "hin_Latn": 0.0
+  }
+ }
+}

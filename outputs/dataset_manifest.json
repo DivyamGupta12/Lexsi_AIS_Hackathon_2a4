@@ -1,0 +1,57 @@
+{
+  "mt_model": "nllb",
+  "prompts": 750,
+  "by_source": [
+    {
+      "source": "harmbench",
+      "kind": "harmful",
+      "n": 6
+    },
+    {
+      "source": "jbb",
+      "kind": "benign",
+      "n": 27
+    },
+    {
+      "source": "jbb",
+      "kind": "harmful",
+      "n": 27
+    },
+    {
+      "source": "novel",
+      "kind": "benign",
+      "n": 29
+    },
+    {
+      "source": "novel",
+      "kind": "harmful",
+      "n": 29
+    },
+    {
+      "source": "xstest",
+      "kind": "benign",
+      "n": 26
+    },
+    {
+      "source": "xstest",
+      "kind": "harmful",
+      "n": 6
+    }
+  ],
+  "paired_families_by_split": {
+    "calib": 30,
+    "eval": 26
+  },
+  "fidelity_mean": {
+    "en_para": 0.874,
+    "hi_deva": 0.83,
+    "hi_roman": 0.5,
+    "hinglish": 0.743
+  },
+  "hi_deva_fixed_by_llm": 0,
+  "human_edits": 0,
+  "gate_rejections_last_pass": {
+    "script": 48,
+    "low_fidelity": 77
+  }
+}
