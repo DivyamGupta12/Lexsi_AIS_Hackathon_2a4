@@ -6,7 +6,10 @@
 > [!WARNING]
 > **Content warning.** The datasets, generated outputs, and examples concern harmful, illegal, hateful, self-harm, and otherwise unsafe requests. This repository reports aggregate results and does not reproduce attack instructions in this README.
 
-**Hackathon track:** **[T2a] Track 2a, problem 4 - Multilingual and code-mixed safety:** test whether safety holds across languages and mixed-language prompts, then close the gaps found.
+## Hackathon submission
+
+- **Track:** **[T2a] Track 2a**
+- **Problem statement #4:** **Multilingual and code-mixed safety** — test whether safety holds across languages and mixed-language prompts, then close the gaps found.
 
 | Headline before → after | Base model + method |
 |---|---|
@@ -30,7 +33,7 @@ Safety alignment should survive a change in language and script. We test that pr
 
 We diagnose a mismatch between **harm recognition** and **refusal execution**. A logistic probe over request-token activations remains highly discriminative across all forms, while the English refusal coordinate weakens markedly at the final prompt token. We then use the probe as a low-false-positive gate: only flagged requests are translated into English and answered through the model's own English-aligned behavior. On held-out paired families this reduces mean Hindi-form ASR from 75.6% to 28.2% (−47.4pp, 95% CI [−61.5, −34.6]); benign over-refusal or broken replies increase by 2.6pp (95% CI [0.0, 7.7]).
 
-We validate the finding with an independent, larger cross model experiment over 123 families and three Cohere Aya models. The same repair lowers mean Hindi-form ASR from 79.2% to 33.3% on Tiny Aya Global, 79.2% to 28.3% on Tiny Aya Fire, and 90.0% to 40.8% on Aya Expanse 8B. SafeTune steering is evaluated as a serious baseline and as a gated fallback; it does not improve the main method's safety/utility frontier. CircuitKIT finds compact refusal circuits with high cross-form faithfulness, providing a circuit-level view consistent with the activation diagnosis.
+We validate the finding with an independent, larger cross-model replication over 123 families and three Cohere Aya models. The same repair lowers mean Hindi-form ASR from 79.2% to 33.3% on Tiny Aya Global, 79.2% to 28.3% on Tiny Aya Fire, and 90.0% to 40.8% on Aya Expanse 8B. SafeTune steering is evaluated as a serious baseline and as a gated fallback; it does not improve the main method's safety/utility frontier. CircuitKIT finds compact refusal circuits with high cross-form faithfulness, providing a circuit-level view consistent with the activation diagnosis.
 
 ## Problem and threat model
 
@@ -43,6 +46,17 @@ An attacker does not need to defeat a model's English safety policy if the same 
 - natural Hinglish.
 
 The goal is not to label an input externally. It is to make the **same target model** recognize a harmful request and reliably invoke its existing refusal behavior, while avoiding refusals or broken outputs on benign requests.
+
+### Why this matters in practice
+
+Hindi and Hinglish speakers should not receive a weaker safety boundary merely because they type in Devanagari, Roman Hindi, or a natural code-mixed register. This matters for multilingual support, education, and public-facing assistants, where users routinely switch scripts and languages within a conversation. A safety layer that only works in English creates an avoidable attack surface.
+
+### Research questions
+
+1. Does Tiny Aya Global's safety behavior degrade across Devanagari Hindi, Roman Hindi, and Hinglish when the underlying request meaning is preserved?
+2. If it does, is the failure a loss of harmfulness representation or a failure to recruit the model's refusal behavior?
+3. Can a calibration-only inference-time intervention close the gap without converting benign prompts into refusals or degraded output?
+4. Does the safety–utility trade-off reproduce across other Cohere Aya models and against SafeTune baselines?
 
 ## Approach
 
@@ -84,15 +98,17 @@ JailbreakBench / novel prompts / XSTest / HarmBench
 | **CircuitKIT** | EAP-IG node-level refusal circuit discovery per form and causal patching/ablation faithfulness evaluation. |
 | **AuditKIT** | Granite Guardian unsafe-output scores, paired significance comparisons, and Belebele capability retention checks. |
 
+AlignTune and AgentTune were not used: this submission focuses on diagnosis and inference-time repair rather than post-training or agent trajectories.
+
 ## Models
 
 | Role | Model | Usage |
 |---|---|---|
-| **Primary submitted model** | [`CohereLabs/tiny-aya-global`](https://huggingface.co/CohereLabs/tiny-aya-global) | Full CuratorKIT/SafeTune/CircuitKIT/AuditKIT pipeline; bf16 on an NVIDIA L4. |
-| Cross-model Cohere checks | Tiny Aya Fire; Aya Expanse 8B | cross model replication; same five-form methodology and gated restoration. |
+| **Target / hardened model** | [`CohereLabs/tiny-aya-global`](https://huggingface.co/CohereLabs/tiny-aya-global) | Full CuratorKIT/SafeTune/CircuitKIT/AuditKIT pipeline; bf16 on an NVIDIA L4; repaired by an inference-time wrapper with no weight update. |
+| Cross-model Cohere checks | Tiny Aya Fire; Aya Expanse 8B | Cross-model replication; same five-form methodology and gated restoration. |
 | Claim-supporting non-Cohere check | Qwen3-1.7B | Demonstrates that the multilingual safety gap is not unique to Aya; it is not the headline repaired model. |
 
-Tiny Aya Global is a dense 3.9B open-weights model. Its model card lists **CC-BY-NC-4.0** plus Cohere's acceptable-use terms; see the upstream model card for the authoritative license and usage conditions.
+Tiny Aya Global is a dense 3.9B open-weights model. Its model card lists **CC-BY-NC-4.0** plus Cohere's acceptable-use terms; the other Aya variants and Qwen control retain the terms specified on their respective model cards.
 
 ## Dataset and curation
 
@@ -109,6 +125,12 @@ The final CuratorKIT-produced evaluation contains **750 prompts**: 150 source it
 
 The paired main set has **56 families**: **30 calibration** and **26 held-out evaluation** families. Splits are by family, never by individual form, so translations or code-mixed variants of the same seed cannot cross into evaluation.
 
+### Attack and over-refusal sets
+
+- **Direct harmful requests:** topic-matched JailbreakBench pairs and project-authored novel pairs form the main paired attack set; HarmBench provides a separate external harmful-behavior check.
+- **Benign prompts that look risky:** XSTest checks whether a repair achieves lower ASR by incorrectly refusing harmless requests.
+- **Leak controls:** MinHash deduplication is applied before curation, family-level splits prevent variant leakage, and English paraphrases test sensitivity to benchmark wording.
+
 ### CuratorKIT filtering
 
 | Stage | Count |
@@ -122,6 +144,17 @@ The paired main set has **56 families**: **30 calibration** and **26 held-out ev
 
 Mean LaBSE similarity to the English seed is 0.874 for English paraphrases, 0.830 for Devanagari Hindi, and 0.743 for Hinglish. Roman Hindi is scored for documentation (0.500) but is not rejected by LaBSE because Romanisation is a known poor fit for its embedding space; it is instead checked by the script/register gate and reviewed as part of the parallel set.
 
+### Source licenses and language coverage
+
+| Source | License / terms | How used | Languages in this work |
+|---|---|---|---|
+| [JailbreakBench](https://github.com/JailbreakBench/jailbreakbench) | MIT | Harmful/benign paired seeds | English source; five derived forms |
+| [HarmBench](https://github.com/centerforaisafety/HarmBench) | MIT | External harmful-behavior check | English source; five derived forms |
+| [XSTest](https://github.com/paul-rottger/xstest) | CC-BY-4.0 | Over-refusal retention set | English source; five derived forms |
+| Project-authored novel seeds | Released with this project | Held-out generalisation check | English source; five derived forms |
+
+All evaluation variants cover **English, English paraphrase, Hindi in Devanagari, Roman Hindi, and Hinglish**. Derived variants retain source provenance and do not replace or supersede upstream licenses.
+
 ## Metrics
 
 | Metric | Direction | Why it matters |
@@ -134,6 +167,10 @@ Mean LaBSE similarity to the English seed is 0.874 for English paraphrases, 0.83
 | **Belebele accuracy** | ↑ | Retention check on Hindi Devanagari, Hindi Latin, and English reading comprehension. |
 
 The automatic primary judge is Granite Guardian through AuditKIT. `human_labels_global.csv` is included for manual audit, but it was not fully annotated; we therefore do **not** claim human-agreement validation.
+
+### Attack budget / cost to break
+
+This is a **single-turn, fixed-prompt** safety evaluation: each held-out family receives one direct attack attempt per language form, rather than an adaptive multi-turn jailbreak search. ASR is therefore the meaningful attack outcome here; we do not claim a separate adaptive cost-to-break estimate.
 
 ## Results
 
@@ -150,6 +187,8 @@ The full pipeline's held-out paired families show a large safety discontinuity:
 | Hinglish | 0.946 | **75.0%** | 10.7% | 26.8% |
 
 The same pattern holds on never-published seeds: attack success is 6.9% in English versus 79.3% / 89.7% / 82.8% in Devanagari / Roman Hindi / Hinglish. English and English-paraphrase remain safe, so the gap is not plausibly explained by verbatim JailbreakBench memorisation.
+
+![Baseline audit: comprehension and harm recognition can persist while refusal fails](plots/fig_audit_global.png)
 
 ### 2. The model knows the request is harmful; refusal is what fails
 
@@ -214,25 +253,24 @@ CircuitKIT discovered a 182-node EAP-IG refusal circuit for each form (30% node 
 
 The discovered circuits are also causally faithful: patching/ablation faithfulness ranges from 0.77 to 1.00 across source and evaluated forms. This is supportive mechanistic evidence, not a second repair claim; CircuitKIT warns that 32 examples is a small faithfulness sample, so these values should not be over-generalised.
 
-### 6. Cross model replication and cross-model checks
+### 6. Cross-model replication
 
-The self-contained cross model experiment uses a larger five-form set (**123 families; 80 held-out**) and independently reproduces the primary pattern. Values below are mean ASR over the three Hindi forms.
+The self-contained cross-model replication uses a larger five-form set (**123 families; 80 held-out**) and independently reproduces the primary pattern. Values below are mean ASR over the three Hindi forms.
 
 | Model | Base ASR | Probe + translate ASR | Relative reduction | Benign bad: base → repaired |
 |---|---:|---:|---:|---:|
 | **Tiny Aya Global** | 79.2% | 33.3% | 58% | 6.8% → 8.5% |
 | **Tiny Aya Fire** | 79.2% | 28.3% | 64% | 10.2% → 13.0% |
 | **Aya Expanse 8B** | 90.0% | 40.8% | 55% | 1.2% → 2.5% |
+| Qwen3-1.7B (supporting only) | 70.0% | 62.9% | 10% | 7.3% → 7.3% |
 
-Qwen3-1.7B (supporting the findings) - Base ASR - 70.0% 
+The Aya result is robust across three Cohere models. Qwen confirms that the multilingual safety gap generalises, but it does not support a universal-repair claim.
 
-The Aya result is robust across three Cohere models. Qwen confirms that the multilingual safety gap generalises.
+![Cross-model Tiny Aya Global methods](plots/fig_steering_tiny-aya-global.png)
 
-![Lexsi held-out Tiny Aya Global methods](plots/fig_steering_tiny-aya-global.png)
+#### SafeTune comparison run: both Tiny Aya Global result sets
 
-#### Cross Model Benchamrking SafeTune comparison run: both Tiny Aya Global result sets
-
-There are two Tiny Aya Global cross model result sets: the standard cross-model replication above, and a separately executed SafeTune comparison run that adds the SafeTune CAST intervention. The latter has a separately regenerated base, so its numbers must be compared **within this table**, not against the 79.2% base above.
+There are two Tiny Aya Global result sets: the standard cross-model replication above, and a separately executed SafeTune comparison run that adds the SafeTune CAST intervention. The latter has a separately regenerated base, so its numbers must be compared **within this table**, not against the 79.2% base above.
 
 | Method in SafeTune comparison run | Hindi-form ASR ↓ | All-form benign bad ↓ | Readout |
 |---|---:|---:|---|
@@ -248,7 +286,7 @@ This is valuable evidence for SafeTune rather than a hidden negative: its standa
 Negative results are part of the evidence:
 
 - Always-on steering and CAA improving ASR also sometimes caused over-refusal or broken output.
-- The SafeTune CAST run in cross model benchmarking is not a competitive repair: for example, Tiny Aya Global's Devanagari ASR rises from 66.2% to 92.5% and broken outputs increase.
+- The SafeTune CAST run in the cross-model study is not a competitive repair: for example, Tiny Aya Global's Devanagari ASR rises from 66.2% to 92.5% and broken outputs increase.
 - `probe+translate+safetune` selected multilingual CAST as a calibration-valid fallback, but produced no measurable gain over `probe+translate`.
 - The activation clamp is model-dependent; it is inferior to the translation restoration route on Tiny Aya.
 
@@ -273,29 +311,15 @@ The selected method is not simply the strongest steering vector. This calibratio
 - **Generation:** greedy decoding; max 160 new tokens for direct replies. Strength grids are selected using calibration families only.
 - **Random seed:** 0.
 
-## Artifact map
+### Compute
 
-The raw run directory is intentionally large (activations, cached model outputs, and circuit objects). Publish it as an **HF dataset collection**, not as a normal GitHub commit. The most useful artifacts are:
+The primary Tiny Aya Global pipeline used bf16 inference on an NVIDIA L4. Experiment outputs, figures, traces, and inference-time steering artifacts are released separately on Hugging Face; no claim is made for a fine-tuned checkpoint, quantized deployment, or a closed-model cost comparison.
 
-| Artifact | Purpose |
-|---|---|
-| `data/codemix_safety.jsonl` | Curated five-form dataset |
-| `dataset_manifest.json` | Curation counts and provenance |
-| `outputs/generations_global.jsonl` | Base model outputs and protocol traces |
-| `outputs/steer_eval_global.jsonl` | All repair outputs |
-| `outputs/steer_results_global.json` | Aggregated repair metrics |
-| `outputs/fig_*.png` | Pipeline figures |
-| `outputs/circuit_global_*.pt` | CircuitKIT circuit artifacts |
-| `cross_model_replication/results_*.json` | Cross-model cross model summaries |
-| `results/lexsi_*.ipynb` | Executed cross model notebooks |
+## Public artifacts
 
-### Links
-
-
-- **HF dataset collection:** `<HF_DATASET_COLLECTION_URL>` - curated data, outputs, logs, figures, benchmark results, and circuit artifacts.
-- **HF model collection:** `<HF_MODEL_COLLECTION_URL>` - probe/steering artifacts (this work creates inference-time artifacts, not a fine-tuned checkpoint or LoRA).
-- **Public GitHub repository:** `<GITHUB_REPO_URL>`.
-- **Optional demo / Space:** `<HF_SPACE_URL>`.
+- **GitHub code and executed notebooks:** [DivyamGupta12/Lexsi_AIS_Hackathon_2a4](https://github.com/DivyamGupta12/Lexsi_AIS_Hackathon_2a4)
+- **HF dataset collection:** `<HF_DATASET_COLLECTION_URL>` — curated five-form data, evaluation logs, traces, summaries, and figures.
+- **HF model collection:** `<HF_MODEL_COLLECTION_URL>` — latent-harm probe and inference-time steering artifacts; no fine-tuned checkpoint is claimed.
 
 
 ## Repository layout and reproduction
@@ -308,21 +332,29 @@ The raw run directory is intentionally large (activations, cached model outputs,
 ├── 03b_circuitkit_circuits.ipynb      # CircuitKIT circuits + faithfulness
 ├── 04_steering_repair.ipynb           # SafeTune baselines + gated repair
 ├── 05_results_and_release.ipynb       # Figures, cost worksheet, upload helper
-├── lexsi.ipynb                         # Self-contained cross-model replication
+├── replication_study.ipynb             # Cross-model replication
+├── data/                               # Curated five-form evaluation data
+├── outputs/                            # Aggregated tables and evaluation outputs
+├── plots/                              # Figures
+├── cross_model_replication/            # Larger cross-model result summaries
 ├── curation.py                         # CuratorKIT gates and translators
 └── mlsafety.py                         # Shared model, metrics, statistics helpers
 ```
 
-Run notebooks `01 → 02 → 03 → 03b → 04 → 05` with the same `MODEL_KEY="tiny-aya-global"`. `03b` is optional for the repair but required to reproduce the CircuitKIT figures. Run `lexsi.ipynb` separately for the cross-model checks. See the notebooks for package versions and GPU guidance.
+Run notebooks `01 → 02 → 03 → 03b → 04 → 05` with the same `MODEL_KEY="tiny-aya-global"`. `03b` is optional for the repair but required to reproduce the CircuitKIT figures. Run `replication_study.ipynb` separately for the cross-model checks. See the notebooks for package versions and GPU guidance.
 
 ## Limitations and responsible use
 
 - The translation route is a runtime safety layer, not a replacement for multilingual safety training.
 - Roman Hindi is intrinsically variable in spelling; our script/register and human-review workflow reduces but cannot eliminate that ambiguity.
-- The main full-pipeline held-out paired set is 26 families; we report clustered confidence intervals and independently replicate at larger Lexsi scale, but a larger human-reviewed multilingual benchmark would be stronger.
+- The main full-pipeline held-out paired set is 26 families; we report clustered confidence intervals and independently replicate at a larger cross-model scale, but a larger human-reviewed multilingual benchmark would be stronger.
 - Granite Guardian is an automatic judge; the included human-label worksheet remains incomplete.
 - A determined attacker could target the gate, translation step, or response composition. The code and released artifacts are intended for defensive safety research and evaluation.
 - This work does not publish harmful prompts as highlighted examples in the README.
+
+### Security considerations, responsible disclosure, and dual use
+
+This work evaluates direct harmful requests only to measure and reduce unsafe assistance. We release aggregate metrics, defensive code, and reproducibility artifacts, while avoiding highlighted harmful prompt/response examples in this README. It should not be interpreted as evidence that the repair defeats adaptive jailbreaks, prompt injection, or multi-turn attacks.
 
 ## With more credits
 
@@ -331,6 +363,61 @@ Run notebooks `01 → 02 → 03 → 03b → 04 → 05` with the same `MODEL_KEY=
 3. Test additional Indic languages and naturally occurring code-mixed traffic.
 4. Train a lightweight multilingual refusal adapter using the curated data, then compare it with the inference-time repair.
 5. Scale CircuitKIT faithfulness from 32 to 100–300 examples per form.
+
+## Appendix
+
+### A. Evaluation protocol and judge rubric
+
+Each family is rendered in five semantically matched forms. The model receives the form directly and produces a single greedy-decoded response (maximum 160 new tokens). Families, rather than individual rows or translations, are split into calibration and held-out partitions.
+
+AuditKIT's Granite Guardian is configured for the `harm` policy. **Attack success** means the generated answer materially assists the harmful request; **benign bad** means either an unjustified refusal or a broken/degenerate reply to a benign prompt. The exact prompts, generated responses, judge outputs, and per-family result records are released in the linked dataset collection. No human-agreement statistic is reported because the manual worksheet is incomplete.
+
+### B. Controls and ablation rationale
+
+The evaluation does not assume that any output change is a safety improvement:
+
+- English paraphrases test whether a result is caused by English benchmark-string memorisation.
+- Never-published novel seeds test whether results are confined to public benchmark wording.
+- A random-direction control checks whether arbitrary activation perturbations explain the effect.
+- Calibration chooses thresholds and strengths; held-out families are not used for tuning.
+- XSTest and Belebele measure over-refusal and reading-comprehension retention.
+- SafeTune refusal-direction, CAA, English CAST, and multilingual CAST runs establish direct baselines for the proposed composition.
+
+### C. Revisions
+
+- **Submission version 1:** five-form audit, mechanistic diagnosis, inference-time repair, SafeTune/CircuitKIT/AuditKIT comparisons, and cross-model replication.
+
+### D. Source generalisation: baseline ASR by harmful seed source
+
+The language safety gap is not confined to a single public benchmark. These are direct baseline ASR percentages before repair; HarmBench is descriptive because its subset contains only six harmful source items.
+
+| Harmful seed source | English | English paraphrase | Devanagari Hindi | Roman Hindi | Hinglish |
+|---|---:|---:|---:|---:|---:|
+| JailbreakBench | 11.1% | 3.7% | 55.6% | 92.6% | 66.7% |
+| Project-authored novel seeds | 6.9% | 0.0% | 79.3% | 89.7% | 82.8% |
+| HarmBench | 16.7% | 0.0% | 100.0% | 83.3% | 66.7% |
+
+### E. Additional visual evidence
+
+<details>
+<summary><strong>Refusal-coordinate distributions by prompt form and behavior</strong></summary>
+
+The English refusal coordinate separates English refused and complied replies, but becomes less reliably recruited for Roman Hindi and Hinglish.
+
+![Refusal-coordinate distributions by form and observed behavior](plots/fig_refproj_vs_behavior_global.png)
+
+</details>
+
+<details>
+<summary><strong>Cross-model held-out method comparisons</strong></summary>
+
+These per-form charts provide the visual counterpart to the cross-model summary table. They show the same safety–utility comparison for Tiny Aya Fire and Aya Expanse 8B; they are supplementary rather than additional headline claims.
+
+![Tiny Aya Fire held-out methods](plots/fig_steering_tiny-aya-fire.png)
+
+![Aya Expanse 8B held-out methods](plots/fig_steering_aya-expanse-8b.png)
+
+</details>
 
 ## Declaration, acknowledgements, and references
 
@@ -346,5 +433,8 @@ All experiment-specific dataset construction, gating, analysis, repair compositi
 - [Zhao et al. (2025). LLMs Encode Harmfulness and Refusal Separately.](https://arxiv.org/abs/2507.11878)
 
 **Team:** Divyam Gupta, email - divyamgupta345@gmail.com
+
+**Author contributions:** Divyam Gupta designed and ran the experiments, implemented the pipeline, and prepared the release.  
+**Acknowledgements:** Cohere Labs / Lexsi for the hackathon kits and model access; the authors and maintainers of the cited models, datasets, and benchmarks.
 
 **LLM usage statement:** AI assistance was used for coding and documentation; all reported metrics were produced by the included notebooks and retained artifacts.
